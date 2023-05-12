@@ -1,0 +1,30 @@
+function calculateVarianceForColumns() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var range = sheet.getActiveRange(); // Get the selected range
+  var values = range.getValues();
+  var sumOfVariances = 0; // Variable to store the sum of variances
+
+  // Calculate variance for each column
+  for (var col = 0; col < values[0].length; col++) {
+    var columnValues = values.map(function (row) {
+      return row[col];
+    });
+    var mean = columnValues.reduce((a, b) => a + b, 0) / columnValues.length;
+    var squaredDifferences = columnValues.map(value => Math.pow(value - mean, 2));
+    var variance = squaredDifferences.reduce((a, b) => a + b, 0) / (columnValues.length - 1); // Corrected variance calculation
+
+    // Format variance to 10 decimal places
+    variance = Number(variance.toFixed(10));
+
+    // Output the variance
+    sheet.getRange(range.getLastRow() + 1, range.getColumn() + col).offset(2, 0).setValue('Variance');
+    sheet.getRange(range.getLastRow() + 2, range.getColumn() + col).offset(2, 0).setValue(variance);
+
+    // Add the variance to the sumOfVariances
+    sumOfVariances += variance;
+  }
+
+  // Output the sum of variances
+  sheet.getRange(range.getLastRow() + 1, range.getLastColumn() + 2).offset(2, 0).setValue('Sum of Variances');
+  sheet.getRange(range.getLastRow() + 2, range.getLastColumn() + 2).offset(2, 0).setValue(sumOfVariances);
+}

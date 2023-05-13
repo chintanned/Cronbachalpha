@@ -1,0 +1,58 @@
+function calculateVarianceForColumnsAndSumByRowWithVariance() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var range = sheet.getActiveRange();
+  var values = range.getValues();
+  var sumOfVariances = 0;
+  var lastColumnIndex = range.getLastColumn();
+
+  // Calculate variance for each column
+  for (var col = 0; col < values[0].length; col++) {
+    var columnValues = values.map(function (row) {
+      return row[col];
+    });
+    var mean = columnValues.reduce((a, b) => a + b, 0) / columnValues.length;
+    var squaredDifferences = columnValues.map(value => Math.pow(value - mean, 2));
+    var variance = squaredDifferences.reduce((a, b) => a + b, 0) / (columnValues.length - 1);
+    variance = Number(variance.toFixed(10));
+
+    // Output the variance
+    sheet.getRange(range.getLastRow() + 1, range.getColumn() + col).offset(2, 0).setValue('Variance');
+    sheet.getRange(range.getLastRow() + 2, range.getColumn() + col).offset(2, 0).setValue(variance);
+
+    // Add the variance to the sumOfVariances
+    sumOfVariances += variance;
+  }
+
+  // Output the sum of variances
+  sheet.getRange(range.getLastRow() + 1, range.getLastColumn() + 2).setValue('Sum of Variances');
+  sheet.getRange(range.getLastRow() + 2, range.getLastColumn() + 2).setValue(sumOfVariances);
+
+  // Calculate the sum for each row and store in an array
+  var sums = [];
+  for (var row = 0; row < values.length; row++) {
+    var sum = 0;
+    for (var col = 0; col < values[row].length; col++) {
+      sum += Number(values[row][col]);
+    }
+    sums.push(sum);
+    sheet.getRange(range.getRow() + row, lastColumnIndex + 1).setValue(sum);
+  }
+
+  // Calculate the variance of the sums
+  var sumValues = sheet.getRange(range.getRow(), lastColumnIndex + 1, range.getNumRows(), 1).getValues();
+  var mean = sumValues.reduce((acc, val) => acc + val[0], 0) / sumValues.length;
+  var variance = sumValues.reduce((acc, val) => acc + Math.pow(val[0] - mean, 2), 0) / sumValues.length;
+
+  // Print the variance below the newly printed column
+  sheet.getRange(range.getLastRow() + 1, lastColumnIndex + 1).setValue('Variance of the sum');
+  sheet.getRange(range.getLastRow() + 2, lastColumnIndex + 1).setNumberFormat('0.0000000000').setValue(variance);
+
+   // Calculate Cronbach alpha
+  var columnCount = values[0].length;
+  var sumOfVariancesPlusMean = sumOfVariances + mean;
+  var alpha = columnCount / (columnCount - 1) * (1 - (sumOfVariances / variance));
+
+  // Print Cronbach alpha beside 'Sum of Variances'
+  sheet.getRange(range.getLastRow() + 2, range.getLastColumn() + 3).setValue(alpha.toFixed(4));
+
+}

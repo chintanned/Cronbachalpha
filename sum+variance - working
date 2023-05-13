@@ -28,6 +28,6 @@ function calculateSumByRowWithVariance() {
   var variance = sumValues.reduce((acc, val) => acc + Math.pow(val[0] - mean, 2), 0) / sumValues.length;
 
   // Print the variance below the newly printed column
-  sheet.getRange(selectedRange.getLastRow() + 2, lastColumnIndex + 1).setValue('Variance of the sum');
-  sheet.getRange(selectedRange.getLastRow() + 3, lastColumnIndex + 1).setValue(variance);
+  sheet.getRange(selectedRange.getLastRow() + 1, lastColumnIndex + 1).setValue('Variance of the sum');
+  sheet.getRange(selectedRange.getLastRow() + 2, lastColumnIndex + 1).setNumberFormat('0.0000000000').setValue(variance);
 }

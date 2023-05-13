@@ -1,0 +1,33 @@
+function calculateSumByRowWithVariance() {
+  // Get the active sheet
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+  // Get the currently selected range
+  var selectedRange = sheet.getActiveRange();
+
+  // Get the values within the selected range
+  var values = selectedRange.getValues();
+
+  // Get the last column index
+  var lastColumnIndex = selectedRange.getLastColumn();
+
+  // Calculate the sum for each row and store in an array
+  var sums = [];
+  for (var row = 0; row < values.length; row++) {
+    var sum = 0;
+    for (var col = 0; col < values[row].length; col++) {
+      sum += Number(values[row][col]);
+    }
+    sums.push(sum);
+    sheet.getRange(selectedRange.getRow() + row, lastColumnIndex + 1).setValue(sum);
+  }
+
+  // Calculate the variance of the sums
+  var sumValues = sheet.getRange(selectedRange.getRow(), lastColumnIndex + 1, selectedRange.getNumRows(), 1).getValues();
+  var mean = sumValues.reduce((acc, val) => acc + val[0], 0) / sumValues.length;
+  var variance = sumValues.reduce((acc, val) => acc + Math.pow(val[0] - mean, 2), 0) / sumValues.length;
+
+  // Print the variance below the newly printed column
+  sheet.getRange(selectedRange.getLastRow() + 2, lastColumnIndex + 1).setValue('Variance of the sum');
+  sheet.getRange(selectedRange.getLastRow() + 3, lastColumnIndex + 1).setValue(variance);
+}
